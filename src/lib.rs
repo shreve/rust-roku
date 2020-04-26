@@ -12,14 +12,17 @@ ST: roku:ecp
 "#;
 
 fn parse_response(resp: &str) -> Option<&str> {
+    // Search the whole thing for Roku. If there, we continue.
     if ! resp.contains("Roku") {
         return None;
     }
 
+    // Find the line that provides LOCATION.
     let line = resp.lines()
         .filter(|line| line.contains("LOCATION") )
         .last();
 
+    // Pull out the location value from that line.
     match line {
         None => None,
         Some(string) => {
@@ -91,6 +94,8 @@ impl Client {
         url.push_str(path);
 
         {
+            // Reduce the scope of the request so the mutable borrow
+            // of out can be dropped before converting to string at the end.
             let mut req = Easy::new();
             req.url(&url).unwrap();
 
